@@ -1,2 +1,2 @@
-# Sokoban
-Sokoban using AI
+### How to run
+```python3 Sokoban.py```
