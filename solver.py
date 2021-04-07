@@ -234,17 +234,23 @@ def uniformCostSearch(gameState):
 
 def HeuristicNorm1(posPlayer, posBox, posGoals):
     """Heuristic Norm 1 Cost"""
+    from scipy.optimize import linear_sum_assignment
+    Graph = []
     length = len(posBox)
     H_cost = 0
 
     for i in range(length):
-        H_cost += np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic Norm 1 cost from Player to Boxes
+        Graph.append([])
+        for j in range(length): 
+            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Heuristic Norm 1 cost from Boxes to Goals
 
-    for i in range(length):
-        for j in range(length):
-            H_cost += np.linalg.norm(posBox[i] - posGoals[j], ord = 1) # Heuristic Norm 1 cost from Boxes to Goals
+    _ , col_ind = linear_sum_assignment(Graph)
     
-    return (H_cost/length)*(1.0 + 1/120)
+    for i in range(length):
+        if 0 < Graph[i][col_ind[i]]:
+            H_cost += Graph[i][col_ind[i]] + np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic Norm 1 cost from Player to Boxes
+            
+    return H_cost*(1.0 + 1/120)
 
 def HeuristicNorm2(posPlayer, posBox, posGoals):
     """Heuristic Norm 2 Cost"""
@@ -256,9 +262,9 @@ def HeuristicNorm2(posPlayer, posBox, posGoals):
 
     for i in range(length):
         for j in range(length):
-            H_cost += np.linalg.norm(posBox[i] - posGoals[j], ord = 2) # Heuristic Norm 2 cost from Boxes to Goals
+            H_cost += np.linalg.norm(posBox[i] - posGoals[j], ord = 2)/length # Heuristic Norm 2 cost from Boxes to Goals
     
-    return (H_cost/length)*(1.0 + 1/120)
+    return H_cost*(1.0 + 1/120)
 
 def GreedySearch(gameState):
     """Implement Greedy Search approach"""
@@ -317,8 +323,8 @@ def AStarSearch(gameState):
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
                 new_action = node_action + [action[-1]] # store all previous actions
-                #H_cost = HeuristicNorm1(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                H_cost = HeuristicNorm2(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                H_cost = HeuristicNorm1(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicNorm2(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], cost(new_action[1:]) + H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], cost(new_action[1:]) + H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
