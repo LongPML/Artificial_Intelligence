@@ -276,7 +276,7 @@ def GreedySearch(gameState):
                 actions.push(node_action + [action[-1]], H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
 
-def A_Star_Search(gameState):
+def AStarSearch(gameState):
     """Implement A Star Search approach"""
     beginBox = PosOfBoxes(gameState)
     beginPlayer = PosOfPlayer(gameState)
@@ -340,7 +340,7 @@ def get_move(layout, player_pos, method):
     elif method == 'gs':
         result = GreedySearch(gameState)
     elif method == 'a*s':
-        result = A_Star_Search(gameState)
+        result = AStarSearch(gameState)
     else:
         raise ValueError('Invalid method.')
     time_end=time.time()
