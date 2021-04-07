@@ -232,17 +232,31 @@ def uniformCostSearch(gameState):
                 actions.push(node_action + [action[-1]], cost(new_action[1:]))  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
 
-def Heuristic(posPlayer, posBox, posGoals):
-    """Heuristic Cost"""
+def HeuristicNorm1(posPlayer, posBox, posGoals):
+    """Heuristic Norm 1 Cost"""
     length = len(posBox)
     H_cost = 0
 
     for i in range(length):
-        H_cost += np.linalg.norm((np.array(posBox[i]) - np.array(posPlayer)), ord = 1) # Heuristic cost from Player to Boxes
+        H_cost += np.linalg.norm(posBox[i] - posPlayer, ord = 1) # Heuristic Norm 1 cost from Player to Boxes
 
     for i in range(length):
         for j in range(length):
-            H_cost += np.linalg.norm((np.array(posBox[i]) - np.array(posGoals[j])), ord = 1) # Heuristic cost from Boxes to Goals
+            H_cost += np.linalg.norm(posBox[i] - posGoals[j], ord = 1) # Heuristic Norm 1 cost from Boxes to Goals
+
+    return H_cost
+
+def HeuristicNorm2(posPlayer, posBox, posGoals):
+    """Heuristic Norm 2 Cost"""
+    length = len(posBox)
+    H_cost = 0
+
+    for i in range(length):
+        H_cost += np.linalg.norm(posBox[i] - posPlayer, ord = 2) # Heuristic Norm 2 cost from Player to Boxes
+
+    for i in range(length):
+        for j in range(length):
+            H_cost += np.linalg.norm(posBox[i] - posGoals[j], ord = 2) # Heuristic Norm 2 cost from Boxes to Goals
 
     return H_cost
 
@@ -271,7 +285,7 @@ def GreedySearch(gameState):
                 newPosPlayer, newPosBox = updateState(node[-1][0], node[-1][1], action) # update new player and boxes position with legal action
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
-                H_cost = Heuristic(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                H_cost = HeuristicNorm1(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
@@ -302,7 +316,7 @@ def AStarSearch(gameState):
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
                 new_action = node_action + [action[-1]] # store all previous actions
-                H_cost = Heuristic(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                H_cost = HeuristicNorm1(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], cost(new_action[1:]) + H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], cost(new_action[1:]) + H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
