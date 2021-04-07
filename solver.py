@@ -254,16 +254,22 @@ def HeuristicNorm1(posPlayer, posBox, posGoals):
 
 def HeuristicNorm2(posPlayer, posBox, posGoals):
     """Heuristic Norm 2 Cost"""
+    from scipy.optimize import linear_sum_assignment
+    Graph = []
     length = len(posBox)
     H_cost = 0
 
     for i in range(length):
-        H_cost += np.linalg.norm(posBox[i] - posPlayer, ord = 2) - 1 # Heuristic Norm 2 cost from Player to Boxes
+        Graph.append([])
+        for j in range(length): 
+            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 2)) # Heuristic Norm 2 cost from Boxes to Goals
 
-    for i in range(length):
-        for j in range(length):
-            H_cost += np.linalg.norm(posBox[i] - posGoals[j], ord = 2)/length # Heuristic Norm 2 cost from Boxes to Goals
+    _ , col_ind = linear_sum_assignment(Graph)
     
+    for i in range(length):
+        if 0 < Graph[i][col_ind[i]]:
+            H_cost += Graph[i][col_ind[i]] + np.linalg.norm(posBox[i] - posPlayer, ord = 2) - 1 # Heuristic Norm 2 cost from Player to Boxes
+            
     return H_cost*(1.0 + 1/120)
 
 def GreedySearch(gameState):
