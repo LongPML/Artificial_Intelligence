@@ -232,7 +232,7 @@ def uniformCostSearch(gameState):
                 actions.push(node_action + [action[-1]], cost(new_action[1:]))  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
 
-def HeuristicNorm1(posPlayer, posBox, posGoals):
+def HeuristicL1Norm(posPlayer, posBox, posGoals):
     """Heuristic Norm 1 Cost"""
     from scipy.optimize import linear_sum_assignment
     Graph = []
@@ -252,7 +252,7 @@ def HeuristicNorm1(posPlayer, posBox, posGoals):
             
     return H_cost*(1.0 + 1/120)
 
-def HeuristicNorm2(posPlayer, posBox, posGoals):
+def HeuristicL2Norm(posPlayer, posBox, posGoals):
     """Heuristic Norm 2 Cost"""
     from scipy.optimize import linear_sum_assignment
     Graph = []
@@ -297,8 +297,8 @@ def GreedySearch(gameState):
                 newPosPlayer, newPosBox = updateState(node[-1][0], node[-1][1], action) # update new player and boxes position with legal action
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
-                #H_cost = HeuristicNorm1(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                H_cost = HeuristicNorm2(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL1Norm(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                H_cost = HeuristicL2Norm(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
@@ -329,8 +329,8 @@ def AStarSearch(gameState):
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
                 new_action = node_action + [action[-1]] # store all previous actions
-                H_cost = HeuristicNorm1(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicNorm2(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                H_cost = HeuristicL1Norm(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2Norm(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], cost(new_action[1:]) + H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], cost(new_action[1:]) + H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
