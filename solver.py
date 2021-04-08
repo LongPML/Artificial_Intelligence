@@ -4,6 +4,7 @@ import numpy as np
 import heapq
 import time
 import numpy as np
+from scipy.optimize import linear_sum_assignment
 global posWalls, posGoals
 class PriorityQueue:
     """Define a PriorityQueue data structure that will be used"""
@@ -233,43 +234,54 @@ def uniformCostSearch(gameState):
     return temp # return final solution
 
 def HeuristicL1Norm(posPlayer, posBox, posGoals):
-    """Heuristic Norm 1 Cost"""
-    from scipy.optimize import linear_sum_assignment
+    """Heuristic L1 Norm Cost"""
     Graph = []
     length = len(posBox)
+    H_list = []
     H_cost = 0
 
     for i in range(length):
         Graph.append([])
         for j in range(length): 
-            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Heuristic Norm 1 cost from Boxes to Goals
+            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Heuristic L1 Norm cost from Boxes to Goals
 
     _ , col_ind = linear_sum_assignment(Graph)
     
     for i in range(length):
-        if 0 < Graph[i][col_ind[i]]:
-            H_cost += Graph[i][col_ind[i]] + np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic Norm 1 cost from Player to Boxes
+        temp = Graph[i][col_ind[i]]
+        if 0 < temp:
+            H_cost += temp + np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic L1 Norm cost from Player to Boxes
+            for j in range(len(H_list)):
+                if H_list[i]>temp: 
+                    H_list.insert(i, temp)
+                    break
             
     return H_cost*(1.0 + 1/120)
 
 def HeuristicL2Norm(posPlayer, posBox, posGoals):
-    """Heuristic Norm 2 Cost"""
-    from scipy.optimize import linear_sum_assignment
+    """Heuristic L2 Norm Cost"""
     Graph = []
     length = len(posBox)
+    H_list = []
     H_cost = 0
 
     for i in range(length):
         Graph.append([])
         for j in range(length): 
-            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 2)) # Heuristic Norm 2 cost from Boxes to Goals
+            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 2)) # Heuristic L2 Norm cost from Boxes to Goals
 
     _ , col_ind = linear_sum_assignment(Graph)
     
     for i in range(length):
-        if 0 < Graph[i][col_ind[i]]:
-            H_cost += Graph[i][col_ind[i]] + np.linalg.norm(posBox[i] - posPlayer, ord = 2) - 1 # Heuristic Norm 2 cost from Player to Boxes
-            
+        temp = Graph[i][col_ind[i]]
+        if 0 < temp:
+            H_cost += temp + np.linalg.norm(posBox[i] - posPlayer, ord = 2) - 1 # Heuristic L2 Norm cost from Player to Boxes
+            for j in range(len(H_list)):
+                if H_list[i] > temp: 
+                    H_list.insert(i, temp)
+                    break
+
+    
     return H_cost*(1.0 + 1/120)
 
 def GreedySearch(gameState):

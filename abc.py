@@ -1,16 +1,9 @@
-from scipy.optimize import linear_sum_assignment
+h = [2,3,5,7,11,13]
+k=9
 
-G=list()
+for i in h:
+    if i>k:
+        h.insert(h.index[i], k)
+        break
 
-G.append([])
-G[0].append(2)
-G[0].append(3)
-
-G.append([])
-G[1].append(5)
-G[1].append(7)
-
-print(G)
-row_ind, col_ind = linear_sum_assignment(G)
-
-print(col_ind)
+print(h)
