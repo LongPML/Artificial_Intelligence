@@ -262,14 +262,13 @@ def HeuristicL1Norm(posPlayer, posBox, posGoals):
         idxBox = H_dict[H_list[i]][0]
         idxGoal = H_dict[H_list[i+1]][1]
         H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 1) - 2
-            
+     
     return H_cost*(1.0 + 1/120)
 
 def HeuristicL2Norm(posPlayer, posBox, posGoals):
     """Heuristic L2 Norm Cost"""
     Graph = []
     length = len(posBox)
-    H_list = []
     H_cost = 0
 
     for i in range(length):
@@ -283,12 +282,7 @@ def HeuristicL2Norm(posPlayer, posBox, posGoals):
         temp = Graph[i][col_ind[i]]
         if 0 < temp:
             H_cost += temp + np.linalg.norm(posBox[i] - posPlayer, ord = 2) - 1 # Heuristic L2 Norm cost from Player to Boxes
-            for j in range(len(H_list)):
-                if H_list[i] > temp: 
-                    H_list.insert(i, temp)
-                    break
 
-    
     return H_cost*(1.0 + 1/120)
 
 def GreedySearch(gameState):
