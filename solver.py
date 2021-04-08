@@ -251,7 +251,7 @@ def HeuristicL1NormTwoState(posPlayer, posBox, posGoals):
         if 0 < temp:
             temp += np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic L1 Norm cost from Player to Boxes
 
-    return H_cost*(1.0 + 1/1000)
+    return H_cost*(1.0 + 1/350)
 
 def HeuristicL2NormTwoState(posPlayer, posBox, posGoals):
     """Heuristic L2 Norm Cost For Two State"""
@@ -271,7 +271,7 @@ def HeuristicL2NormTwoState(posPlayer, posBox, posGoals):
         if 0 < temp:
             temp += np.linalg.norm(posBox[i] - posPlayer, ord = 2) # Heuristic L2 Norm cost from Player to Boxes
 
-    return H_cost*(1.0 + 1/1000)
+    return H_cost*(1.0 + 1/350)
 
 def HeuristicL1NormAllState(posPlayer, posBox, posGoals):
     """Heuristic L1 Norm Cost For All State"""
@@ -309,7 +309,7 @@ def HeuristicL1NormAllState(posPlayer, posBox, posGoals):
         idxGoal = H_dict[H_list[i+1]][1]
         H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 1) - 2 # Heuristic L1 Norm cost from Player to Goals
     
-    return H_cost*(1.0 + 1/1000)
+    return H_cost*(1.0 + 1/350)
 
 def HeuristicL2NormAllState(posPlayer, posBox, posGoals):
     """Heuristic L2 Norm Cost For All State"""
@@ -347,7 +347,7 @@ def HeuristicL2NormAllState(posPlayer, posBox, posGoals):
         idxGoal = H_dict[H_list[i+1]][1]
         H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 2) # Heuristic L2 Norm cost from Player to Goals
     
-    return H_cost*(1.0 + 1/1000)
+    return H_cost*(1.0 + 1/350)
 
 def GreedySearch(gameState): 
     """Implement Greedy Search approach"""
