@@ -1,12 +1,6 @@
-h = [2,3,5,7,11,13]
-k=9
-m = {}
+import numpy as np
+P = np.array([3,1])
+B = np.array([[3,2], [3,3]])
+G = np.array([[1,1], [1,4]])
 
-for i in range(len(h)):
-    m[6]=[1,2]
-    if h[i]>k:
-        h.insert(i, k)
-        break
-
-print(h)
-print(m[6][0])
+print(np.linalg.norm(B[0] - P, ord=1))
