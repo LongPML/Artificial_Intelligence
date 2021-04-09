@@ -289,7 +289,7 @@ def HeuristicL1NormAllState(posPlayer, posBox, posGoals):
     _ , col_ind = linear_sum_assignment(Graph)
     
     for i in range(length):
-        temp = Graph[i][col_ind[i]]
+        temp = Graph[i][col_ind[i]] # Heuristic L1 Norm cost from Boxes to nearest Goals
         if 0 < temp:
             temp += np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic L1 Norm cost from Player to Boxes
             H_cost += temp
@@ -307,7 +307,7 @@ def HeuristicL1NormAllState(posPlayer, posBox, posGoals):
     for i in range(len(H_list) - 1):
         idxBox = H_dict[H_list[i]][0]
         idxGoal = H_dict[H_list[i+1]][1]
-        H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 1) - 2 # Heuristic L1 Norm cost from Player to Goals
+        H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 1) - 2 # Heuristic L1 Norm cost from Goals to Player
     
     return H_cost*(1.0 + 1/1000)
 
@@ -376,8 +376,8 @@ def GreedySearch(gameState):
                     continue    # if box is in illegal position, ignore two code following
                 #H_cost = HeuristicL1NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 #H_cost = HeuristicL2NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                H_cost = HeuristicL1NormAllState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL2NormAllStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL1NormAllState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                H_cost = HeuristicL2NormAllStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
