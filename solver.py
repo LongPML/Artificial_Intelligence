@@ -233,7 +233,7 @@ def uniformCostSearch(gameState):
                 actions.push(node_action + [action[-1]], cost(new_action[1:]))  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
 
-def HeuristicL1NormTwoState(posPlayer, posBox, posGoals):
+def HeuristicL1NormTwoStatus(posPlayer, posBox, posGoals):
     """Heuristic L1 Norm Cost For Two State"""
     Graph = []
     length = len(posBox)
@@ -253,7 +253,7 @@ def HeuristicL1NormTwoState(posPlayer, posBox, posGoals):
 
     return H_cost*(1.0 + 1/1000)
 
-def HeuristicL2NormTwoState(posPlayer, posBox, posGoals):
+def HeuristicL2NormTwoStatus(posPlayer, posBox, posGoals):
     """Heuristic L2 Norm Cost For Two State"""
     Graph = []
     length = len(posBox)
@@ -311,7 +311,7 @@ def HeuristicL1NormAllState(posPlayer, posBox, posGoals):
     
     return H_cost*(1.0 + 1/1000)
 
-def HeuristicL2NormAllState(posPlayer, posBox, posGoals):
+def HeuristicL2NormAllStatus(posPlayer, posBox, posGoals):
     """Heuristic L2 Norm Cost For All State"""
     Graph = []
     length = len(posBox)
@@ -374,10 +374,10 @@ def GreedySearch(gameState):
                 newPosPlayer, newPosBox = updateState(node[-1][0], node[-1][1], action) # update new player and boxes position with legal action
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
-                #H_cost = HeuristicL1NormTwoState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL2NormTwoState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL1NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 H_cost = HeuristicL1NormAllState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL2NormAllState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2NormAllStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
@@ -408,10 +408,10 @@ def AStarSearch(gameState):
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
                 new_action = node_action + [action[-1]] # store all previous actions
-                #H_cost = HeuristicL1NormTwoState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL2NormTwoState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL1NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 H_cost = HeuristicL1NormAllState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL2NormAllState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2NormAllStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], cost(new_action[1:]) + H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], cost(new_action[1:]) + H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
