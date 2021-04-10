@@ -233,48 +233,8 @@ def uniformCostSearch(gameState):
                 actions.push(node_action + [action[-1]], cost(new_action[1:]))  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
 
-def HeuristicL1NormTwoStatus(posPlayer, posBox, posGoals):
-    """Heuristic L1 Norm Cost For Two State"""
-    Graph = []
-    length = len(posBox)
-    H_cost = 0
-
-    for i in range(length):
-        Graph.append([])
-        for j in range(length): 
-            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Heuristic L1 Norm cost from Boxes to Goals
-
-    _ , col_ind = linear_sum_assignment(Graph)
-
-    for i in range(length):
-        temp = Graph[i][col_ind[i]]
-        if 0 < temp:
-            temp += np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic L1 Norm cost from Player to Boxes
-
-    return H_cost*(1.0 + 1/1000)
-
-def HeuristicL2NormTwoStatus(posPlayer, posBox, posGoals):
-    """Heuristic L2 Norm Cost For Two State"""
-    Graph = []
-    length = len(posBox)
-    H_cost = 0
-
-    for i in range(length):
-        Graph.append([])
-        for j in range(length): 
-            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 2)) # Heuristic L2 Norm cost from Boxes to Goals
-
-    _ , col_ind = linear_sum_assignment(Graph)
-
-    for i in range(length):
-        temp = Graph[i][col_ind[i]]
-        if 0 < temp:
-            temp += np.linalg.norm(posBox[i] - posPlayer, ord = 2) # Heuristic L2 Norm cost from Player to Boxes
-
-    return H_cost*(1.0 + 1/1000)
-
-def HeuristicL1NormAllState(posPlayer, posBox, posGoals):
-    """Heuristic L1 Norm Cost For All State"""
+def HeuristicL1NormOverall(posPlayer, posBox, posGoals):
+    """Heuristic L1 Norm Cost Overall"""
     Graph = []
     length = len(posBox)
     H_dict = {}
@@ -303,16 +263,16 @@ def HeuristicL1NormAllState(posPlayer, posBox, posGoals):
                         break
                     if j == len(H_list) - 1:
                         H_list.append(temp)        
-             
+    
     for i in range(len(H_list) - 1):
         idxBox = H_dict[H_list[i]][0]
         idxGoal = H_dict[H_list[i+1]][1]
-        H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 1) - 2 # Heuristic L1 Norm cost from Goals to Player
+        H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 1) - 2 # Heuristic L1 Norm cost from Goal to Box
     
     return H_cost*(1.0 + 1/1000)
 
-def HeuristicL2NormAllStatus(posPlayer, posBox, posGoals):
-    """Heuristic L2 Norm Cost For All State"""
+def HeuristicL2NormOverall(posPlayer, posBox, posGoals):
+    """Heuristic L2 Norm Cost Overall"""
     Graph = []
     length = len(posBox)
     H_dict = {}
@@ -349,6 +309,100 @@ def HeuristicL2NormAllStatus(posPlayer, posBox, posGoals):
     
     return H_cost*(1.0 + 1/1000)
 
+def HeuristicL1NormSequence(posPlayer, posBox, posGoals):
+    """Heuristic L1 Norm Cost Sequence"""
+    length = len(posBox)
+    Graph_B2G = []
+    Graph_G2B = []
+    H_cost = 0
+    Cost_P2B_min = 1000
+    Idx_P2B_min = -1
+    
+    for i in range(length):
+        Graph_B2G.append([])
+        Graph_G2B.append([])
+        for j in range(length): 
+            Graph_B2G[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Store Heuristic L1 Norm cost from Boxes to Goals
+            Graph_G2B[i].append(np.linalg.norm(posGoals[i] - posBox[j], ord = 1)) 
+
+    _ , col_ind_1st = linear_sum_assignment(Graph_B2G)
+    
+    for i in range(length): 
+        if 0 < Graph_B2G[i][col_ind_1st[i]]: 
+            H_cost += Graph_B2G[i][col_ind_1st[i]]  # Sum cost from Boxes to Goals
+
+            temp = np.linalg.norm(posPlayer - posBox[i], ord = 1) # Heuristic L1 Norm cost from Player to nearest Box
+            if temp <= Cost_P2B_min:
+                if temp < Cost_P2B_min:
+                    Cost_P2B_min = temp
+                    Idx_P2B_min = i
+                elif Graph_B2G[i][col_ind_1st[i]] < Graph_B2G[Idx_P2B_min][col_ind_1st[Idx_P2B_min]]:
+                    Cost_P2B_min = temp
+                    Idx_P2B_min = i
+        else: 
+            for j in range(length):
+                Graph_G2B[j][i] = 1000
+
+        Graph_G2B[col_ind_1st[i]][i] = 1000
+    _ , col_ind_2nd = linear_sum_assignment(Graph_G2B)
+    
+    if -1 != Idx_P2B_min:
+        H_cost += Cost_P2B_min - 1 # Adding cost from Player to nearest Box
+        for i in range(length):
+            if Idx_P2B_min == col_ind_2nd[i] :
+                continue
+            if 1000 != Graph_G2B[i][col_ind_2nd[i]]:
+                H_cost += Graph_G2B[i][col_ind_2nd[i]]
+      
+    return H_cost*(1.0 + 1/1000)
+
+def HeuristicL2NormSequence(posPlayer, posBox, posGoals):
+    """Heuristic L1 Norm Cost Sequence"""
+    length = len(posBox)
+    Graph_B2G = []
+    Graph_G2B = []
+    H_cost = 0
+    Cost_P2B_min = 1000
+    Idx_P2B_min = -1
+    
+    for i in range(length):
+        Graph_B2G.append([])
+        Graph_G2B.append([])
+        for j in range(length): 
+            Graph_B2G[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 2)) # Store Heuristic L1 Norm cost from Boxes to Goals
+            Graph_G2B[i].append(np.linalg.norm(posGoals[i] - posBox[j], ord = 2)) 
+
+    _ , col_ind_1st = linear_sum_assignment(Graph_B2G)
+    
+    for i in range(length): 
+        if 0 < Graph_B2G[i][col_ind_1st[i]]: 
+            H_cost += Graph_B2G[i][col_ind_1st[i]]  # Sum cost from Boxes to Goals
+
+            temp = np.linalg.norm(posPlayer - posBox[i], ord = 2) # Heuristic L1 Norm cost from Player to nearest Box
+            if temp <= Cost_P2B_min:
+                if temp < Cost_P2B_min:
+                    Cost_P2B_min = temp
+                    Idx_P2B_min = i
+                elif Graph_B2G[i][col_ind_1st[i]] < Graph_B2G[Idx_P2B_min][col_ind_1st[Idx_P2B_min]]:
+                    Cost_P2B_min = temp
+                    Idx_P2B_min = i
+        else: 
+            for j in range(length):
+                Graph_G2B[j][i] = 1000
+
+        Graph_G2B[col_ind_1st[i]][i] = 1000
+    _ , col_ind_2nd = linear_sum_assignment(Graph_G2B)
+    
+    if -1 != Idx_P2B_min:
+        H_cost += Cost_P2B_min # Adding cost from Player to nearest Box
+        for i in range(length):
+            if Idx_P2B_min == col_ind_2nd[i] :
+                continue
+            if 1000 != Graph_G2B[i][col_ind_2nd[i]]:
+                H_cost += Graph_G2B[i][col_ind_2nd[i]]
+      
+    return H_cost*(1.0 + 1/1000)
+
 def GreedySearch(gameState): 
     """Implement Greedy Search approach"""
     beginBox = PosOfBoxes(gameState)
@@ -374,10 +428,10 @@ def GreedySearch(gameState):
                 newPosPlayer, newPosBox = updateState(node[-1][0], node[-1][1], action) # update new player and boxes position with legal action
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
-                #H_cost = HeuristicL1NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL2NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL1NormAllState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                H_cost = HeuristicL2NormAllStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL1NormOverall(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2NormOverall(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                H_cost = HeuristicL1NormSequence(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2NormSequence(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], H_cost)  # Add current action with new legal action and priority cost to actions
     return temp # return final solution
@@ -408,12 +462,13 @@ def AStarSearch(gameState):
                 if isFailed(newPosBox): # check for new legal position of box
                     continue    # if box is in illegal position, ignore two code following
                 new_action = node_action + [action[-1]] # store all previous actions
-                #H_cost = HeuristicL1NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL2NormTwoStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                H_cost = HeuristicL1NormAllState(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
-                #H_cost = HeuristicL2NormAllStatus(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL1NormOverall(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2NormOverall(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                H_cost = HeuristicL1NormSequence(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
+                #H_cost = HeuristicL2NormSequence(np.array(newPosPlayer), np.array(newPosBox), np.array(posGoals))
                 frontier.push(node + [(newPosPlayer, newPosBox)], cost(new_action[1:]) + H_cost) # Add current state with new legal state and priority cost to frontier
                 actions.push(node_action + [action[-1]], cost(new_action[1:]) + H_cost)  # Add current action with new legal action and priority cost to actions
+    
     return temp # return final solution
 
 """Read command"""

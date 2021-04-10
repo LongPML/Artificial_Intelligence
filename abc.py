@@ -1,6 +1,5 @@
-G = dict()
+G = [1,2,3]
 
-G[1]=[1,5]
-G[1]=[2,5]
+a=G.pop(1)
 
-print(G)
+print(a, G)
