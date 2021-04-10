@@ -244,17 +244,17 @@ def HeuristicL1NormOverall(posPlayer, posBox, posGoals):
     for i in range(length):
         Graph.append([])
         for j in range(length): 
-            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Heuristic L1 Norm cost from Boxes to Goals
+            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Store Heuristic L1 Norm cost from Boxes to Goals
 
-    _ , col_ind = linear_sum_assignment(Graph)
+    _ , col_ind = linear_sum_assignment(Graph) # Store optimal nearest Goal for every Box
     
     for i in range(length):
-        temp = Graph[i][col_ind[i]] # Heuristic L1 Norm cost from Boxes to nearest Goals
+        temp = Graph[i][col_ind[i]] # Cost from Box to nearest Goal
         if 0 < temp:
-            temp += np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic L1 Norm cost from Player to Boxes
-            H_cost += temp
-            H_dict[temp]=[i, col_ind[i]]
-            if 0 == len(H_list):
+            temp += np.linalg.norm(posBox[i] - posPlayer, ord = 1) - 1 # Heuristic L1 Norm cost from Player to Box to optimal nearest Goal
+            H_cost += temp # Sum all cost from Player to Box to optimal nearest Goal
+            H_dict[temp]=[i, col_ind[i]]    # Store Cost following with Box and Goal
+            if 0 == len(H_list):            # Stort and sort Cost
                 H_list.append(temp)
             else: 
                 for j in range(len(H_list)):
@@ -265,9 +265,9 @@ def HeuristicL1NormOverall(posPlayer, posBox, posGoals):
                         H_list.append(temp)        
     
     for i in range(len(H_list) - 1):
-        idxBox = H_dict[H_list[i]][0]
-        idxGoal = H_dict[H_list[i+1]][1]
-        H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 1) - 2 # Heuristic L1 Norm cost from Goal to Box
+        idxGoal = H_dict[H_list[i+1]][1]    # Index Goal with smallest Cost        
+        idxBox = H_dict[H_list[i]][0]       # Index next Box
+        H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 1) - 2 # Sum Heuristic L1 Norm cost from Goal to next Box
     
     return H_cost*(1.0 + 1/1000)
 
@@ -282,17 +282,17 @@ def HeuristicL2NormOverall(posPlayer, posBox, posGoals):
     for i in range(length):
         Graph.append([])
         for j in range(length): 
-            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Heuristic L2 Norm cost from Boxes to Goals
+            Graph[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 2)) # Store Heuristic L2 Norm cost from Boxes to Goals
 
-    _ , col_ind = linear_sum_assignment(Graph)
+    _ , col_ind = linear_sum_assignment(Graph)  # Store optimal nearest Goal for every Box
     
     for i in range(length):
-        temp = Graph[i][col_ind[i]]
+        temp = Graph[i][col_ind[i]] # Cost from Box to nearest Goal
         if 0 < temp:
-            temp += np.linalg.norm(posBox[i] - posPlayer, ord = 2) # Heuristic L2 Norm cost from Player to Boxes
-            H_cost += temp
-            H_dict[temp]=[i, col_ind[i]]
-            if 0 == len(H_list):
+            temp += np.linalg.norm(posBox[i] - posPlayer, ord = 2) # Heuristic L2 Norm cost from Player to Box to optimal nearest Goal
+            H_cost += temp  # Sum all cost from Player to Box to optimal nearest Goal
+            H_dict[temp]=[i, col_ind[i]]    # Store Cost following with Box and Goal
+            if 0 == len(H_list):            # Stort and sort Cost
                 H_list.append(temp)
             else: 
                 for j in range(len(H_list)):
@@ -303,9 +303,9 @@ def HeuristicL2NormOverall(posPlayer, posBox, posGoals):
                         H_list.append(temp)        
              
     for i in range(len(H_list) - 1):
-        idxBox = H_dict[H_list[i]][0]
-        idxGoal = H_dict[H_list[i+1]][1]
-        H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 2) # Heuristic L2 Norm cost from Player to Goals
+        idxGoal = H_dict[H_list[i+1]][1]    # Index Goal with smallest Cost        
+        idxBox = H_dict[H_list[i]][0]       # Index next Box
+        H_cost += np.linalg.norm(posBox[idxBox] - posGoals[idxGoal], ord = 2) # Sum Heuristic L2 Norm cost from Goal to next Box
     
     return H_cost*(1.0 + 1/1000)
 
@@ -322,37 +322,38 @@ def HeuristicL1NormSequence(posPlayer, posBox, posGoals):
         Graph_B2G.append([])
         Graph_G2B.append([])
         for j in range(length): 
-            Graph_B2G[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Store Heuristic L1 Norm cost from Boxes to Goals
-            Graph_G2B[i].append(np.linalg.norm(posGoals[i] - posBox[j], ord = 1)) 
+            Graph_B2G[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 1)) # Store Heuristic L1 Norm cost from Box to Goal
+            Graph_G2B[i].append(np.linalg.norm(posGoals[i] - posBox[j], ord = 1)) # Store Heuristic L1 Norm cost from Goal to Box
 
-    _ , col_ind_1st = linear_sum_assignment(Graph_B2G)
+    _ , col_ind_1st = linear_sum_assignment(Graph_B2G)  # Store optimal nearest Goal for every Box
     
     for i in range(length): 
         if 0 < Graph_B2G[i][col_ind_1st[i]]: 
             H_cost += Graph_B2G[i][col_ind_1st[i]]  # Sum cost from Boxes to Goals
 
-            temp = np.linalg.norm(posPlayer - posBox[i], ord = 1) # Heuristic L1 Norm cost from Player to nearest Box
-            if temp <= Cost_P2B_min:
+            temp = np.linalg.norm(posPlayer - posBox[i], ord = 1) # Heuristic L1 Norm cost from Player to Box
+            if temp <= Cost_P2B_min:        # Find smallest cost from Player to Box
                 if temp < Cost_P2B_min:
                     Cost_P2B_min = temp
                     Idx_P2B_min = i
-                elif Graph_B2G[i][col_ind_1st[i]] < Graph_B2G[Idx_P2B_min][col_ind_1st[Idx_P2B_min]]:
+                elif Graph_B2G[i][col_ind_1st[i]] < Graph_B2G[Idx_P2B_min][col_ind_1st[Idx_P2B_min]]:   # If 2 Cost are equal, choose ones have smaller cost from Box to Goal
                     Cost_P2B_min = temp
                     Idx_P2B_min = i
         else: 
             for j in range(length):
-                Graph_G2B[j][i] = 1000
+                Graph_G2B[j][i] = 1000  # Mark all used Cost of Box as 1000
 
-        Graph_G2B[col_ind_1st[i]][i] = 1000
-    _ , col_ind_2nd = linear_sum_assignment(Graph_G2B)
+        Graph_G2B[col_ind_1st[i]][i] = 1000 # Mark all used Cost of Box and Goal as 1000
+    
+    _ , col_ind_2nd = linear_sum_assignment(Graph_G2B)  # Store optimal second nearest Box for every Goal
     
     if -1 != Idx_P2B_min:
         H_cost += Cost_P2B_min - 1 # Adding cost from Player to nearest Box
         for i in range(length):
-            if Idx_P2B_min == col_ind_2nd[i] :
+            if Idx_P2B_min == col_ind_2nd[i]:   # Check if Box is used
                 continue
-            if 1000 != Graph_G2B[i][col_ind_2nd[i]]:
-                H_cost += Graph_G2B[i][col_ind_2nd[i]]
+            if 1000 != Graph_G2B[i][col_ind_2nd[i]]:    # Check if Cost is used
+                H_cost += Graph_G2B[i][col_ind_2nd[i]]  # Sum all Cost from Goal to optimal second nearest Box
       
     return H_cost*(1.0 + 1/1000)
 
@@ -369,37 +370,38 @@ def HeuristicL2NormSequence(posPlayer, posBox, posGoals):
         Graph_B2G.append([])
         Graph_G2B.append([])
         for j in range(length): 
-            Graph_B2G[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 2)) # Store Heuristic L1 Norm cost from Boxes to Goals
-            Graph_G2B[i].append(np.linalg.norm(posGoals[i] - posBox[j], ord = 2)) 
+            Graph_B2G[i].append(np.linalg.norm(posBox[i] - posGoals[j], ord = 2)) # Store Heuristic L2 Norm cost from Box to Goal
+            Graph_G2B[i].append(np.linalg.norm(posGoals[i] - posBox[j], ord = 2)) # Store Heuristic L2 Norm cost from Goal to Box
 
-    _ , col_ind_1st = linear_sum_assignment(Graph_B2G)
+    _ , col_ind_1st = linear_sum_assignment(Graph_B2G)  # Store optimal nearest Goal for every Box
     
     for i in range(length): 
         if 0 < Graph_B2G[i][col_ind_1st[i]]: 
             H_cost += Graph_B2G[i][col_ind_1st[i]]  # Sum cost from Boxes to Goals
 
-            temp = np.linalg.norm(posPlayer - posBox[i], ord = 2) # Heuristic L1 Norm cost from Player to nearest Box
-            if temp <= Cost_P2B_min:
+            temp = np.linalg.norm(posPlayer - posBox[i], ord = 2) # Heuristic L2 Norm cost from Player to Box
+            if temp <= Cost_P2B_min:        # Find smallest cost from Player to Box
                 if temp < Cost_P2B_min:
                     Cost_P2B_min = temp
                     Idx_P2B_min = i
-                elif Graph_B2G[i][col_ind_1st[i]] < Graph_B2G[Idx_P2B_min][col_ind_1st[Idx_P2B_min]]:
+                elif Graph_B2G[i][col_ind_1st[i]] < Graph_B2G[Idx_P2B_min][col_ind_1st[Idx_P2B_min]]:   # If 2 Cost are equal, choose ones have smaller cost from Box to Goal
                     Cost_P2B_min = temp
                     Idx_P2B_min = i
         else: 
             for j in range(length):
-                Graph_G2B[j][i] = 1000
+                Graph_G2B[j][i] = 1000  # Mark all used Cost of Box as 1000
 
-        Graph_G2B[col_ind_1st[i]][i] = 1000
-    _ , col_ind_2nd = linear_sum_assignment(Graph_G2B)
+        Graph_G2B[col_ind_1st[i]][i] = 1000 # Mark all used Cost of Box and Goal as 1000
+    
+    _ , col_ind_2nd = linear_sum_assignment(Graph_G2B)  # Store optimal second nearest Box for every Goal
     
     if -1 != Idx_P2B_min:
         H_cost += Cost_P2B_min # Adding cost from Player to nearest Box
         for i in range(length):
-            if Idx_P2B_min == col_ind_2nd[i] :
+            if Idx_P2B_min == col_ind_2nd[i]:   # Check if Box is used  
                 continue
-            if 1000 != Graph_G2B[i][col_ind_2nd[i]]:
-                H_cost += Graph_G2B[i][col_ind_2nd[i]]
+            if 1000 != Graph_G2B[i][col_ind_2nd[i]]:    # Check if Cost is used
+                H_cost += Graph_G2B[i][col_ind_2nd[i]]  # Sum all Cost from Goal to optimal second nearest Box
       
     return H_cost*(1.0 + 1/1000)
 
