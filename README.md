@@ -1,2 +1,2 @@
-# SokobanProject
-Sokoban using AI
+# Artificial Intelligence
+All AI project I have done!
