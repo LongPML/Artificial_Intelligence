@@ -1,2 +1,4 @@
 # Knapsack
-> Solving Knapsack using OR Tools and Genetic Algorithm.
+>- Solving Knapsack using:
+        - OR Tools  
+        - Genetic Algorithm.
